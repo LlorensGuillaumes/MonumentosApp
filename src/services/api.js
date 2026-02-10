@@ -1,0 +1,31 @@
+import axios from 'axios';
+
+// 10.0.2.2 es la IP especial del emulador Android que apunta al localhost del PC
+const API_BASE = 'http://10.0.2.2:3001/api';
+
+const api = axios.create({
+  baseURL: API_BASE,
+  timeout: 30000,
+});
+
+export const getStats = () => api.get('/stats').then(r => r.data);
+
+export const getMonumentos = (params = {}) =>
+  api.get('/monumentos', { params }).then(r => r.data);
+
+export const getMonumento = (id) =>
+  api.get(`/monumentos/${id}`).then(r => r.data);
+
+export const getGeoJSON = (params = {}) =>
+  api.get('/geojson', { params }).then(r => r.data);
+
+export const getFiltros = (params = {}) =>
+  api.get('/filtros', { params }).then(r => r.data);
+
+export const getCCAAResumen = (params = {}) =>
+  api.get('/ccaa-resumen', { params }).then(r => r.data);
+
+export const getMunicipios = (params = {}) =>
+  api.get('/municipios', { params }).then(r => r.data);
+
+export default api;
