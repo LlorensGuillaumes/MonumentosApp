@@ -6,6 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
+import { useAuth } from '../context/AuthContext';
 import { getMonumentos } from '../services/api';
 import MonumentoCard from '../components/MonumentoCard';
 import LanguageSelector from '../components/LanguageSelector';
@@ -16,6 +17,7 @@ const FLAG_MAP = { 'España': '🇪🇸', 'Portugal': '🇵🇹', 'Francia': '�
 export default function HomeScreen({ navigation }) {
   const { t } = useTranslation();
   const { stats } = useApp();
+  const { user } = useAuth();
   const [destacados, setDestacados] = useState([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -46,8 +48,16 @@ export default function HomeScreen({ navigation }) {
     loadDestacados();
   };
 
+  const requireAuth = (callback) => {
+    if (!user) {
+      navigation.navigate('Login');
+      return;
+    }
+    callback();
+  };
+
   const navigateToSearch = (params = {}) => {
-    navigation.navigate('Buscar', params);
+    requireAuth(() => navigation.navigate('Buscar', params));
   };
 
   return (
@@ -75,7 +85,7 @@ export default function HomeScreen({ navigation }) {
           </TouchableOpacity>
           <TouchableOpacity
             style={styles.secondaryButton}
-            onPress={() => navigation.navigate('Mapa')}
+            onPress={() => requireAuth(() => navigation.navigate('Mapa'))}
           >
             <Ionicons name="map" size={18} color={COLORS.primary} />
             <Text style={styles.secondaryButtonText}>{t('home.viewOnMap')}</Text>
@@ -109,6 +119,21 @@ export default function HomeScreen({ navigation }) {
         </View>
       )}
 
+      {/* CTA Banner */}
+      {!user && (
+        <View style={styles.ctaBanner}>
+          <Text style={styles.ctaTitle}>{t('home.ctaTitle')}</Text>
+          <Text style={styles.ctaText}>{t('home.ctaText')}</Text>
+          <TouchableOpacity
+            style={styles.ctaButton}
+            onPress={() => navigation.navigate('Login')}
+          >
+            <Ionicons name="person-add" size={18} color="#ef4444" />
+            <Text style={styles.ctaButtonText}>{t('home.ctaButton')}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       {/* Destacados */}
       <View style={styles.section}>
         <Text style={styles.sectionTitle}>{t('home.featuredMonuments')}</Text>
@@ -123,7 +148,7 @@ export default function HomeScreen({ navigation }) {
               <MonumentoCard
                 monumento={item}
                 horizontal
-                onPress={() => navigation.navigate('Detail', { id: item.id, title: item.denominacion })}
+                onPress={() => requireAuth(() => navigation.navigate('Detail', { id: item.id, title: item.denominacion }))}
               />
             )}
             showsHorizontalScrollIndicator={false}
@@ -141,7 +166,7 @@ export default function HomeScreen({ navigation }) {
               <TouchableOpacity
                 key={p.pais}
                 style={styles.countryCard}
-                onPress={() => navigateToSearch({ pais: p.pais })}
+                onPress={() => requireAuth(() => navigateToSearch({ pais: p.pais }))}
               >
                 <Text style={styles.countryFlag}>{FLAG_MAP[p.pais] || '🌍'}</Text>
                 <Text style={styles.countryName}>{p.pais}</Text>
@@ -161,7 +186,7 @@ export default function HomeScreen({ navigation }) {
               <TouchableOpacity
                 key={`${r.pais}-${r.region}`}
                 style={styles.regionCard}
-                onPress={() => navigateToSearch({ region: r.region, pais: r.pais })}
+                onPress={() => requireAuth(() => navigateToSearch({ region: r.region, pais: r.pais }))}
               >
                 <Text style={styles.regionName} numberOfLines={1}>{r.region}</Text>
                 <Text style={styles.regionCount}>{r.total.toLocaleString()}</Text>
@@ -270,6 +295,43 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: COLORS.textSecondary,
     marginTop: 2,
+  },
+  // CTA Banner
+  ctaBanner: {
+    marginHorizontal: 12,
+    marginTop: 16,
+    padding: 24,
+    borderRadius: 16,
+    alignItems: 'center',
+    overflow: 'hidden',
+    backgroundColor: '#ef4444',
+  },
+  ctaTitle: {
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#fff',
+    marginBottom: 8,
+  },
+  ctaText: {
+    fontSize: 14,
+    color: '#fef2f2',
+    textAlign: 'center',
+    lineHeight: 20,
+    marginBottom: 16,
+  },
+  ctaButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    backgroundColor: '#fff',
+    paddingHorizontal: 20,
+    paddingVertical: 12,
+    borderRadius: 10,
+  },
+  ctaButtonText: {
+    color: '#ef4444',
+    fontWeight: '700',
+    fontSize: 15,
   },
   // Sections
   section: {

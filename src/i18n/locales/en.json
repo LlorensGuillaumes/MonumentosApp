@@ -7,7 +7,8 @@
     "home": "Home",
     "search": "Search",
     "map": "Map",
-    "favorites": "Favorites"
+    "favorites": "Favorites",
+    "login": "Log in"
   },
   "home": {
     "heroTitle": "Discover European Heritage",
@@ -25,7 +26,10 @@
     "viewAll": "View all",
     "exploreByCountry": "Explore by country",
     "exploreByRegion": "Explore by region",
-    "monumentsCount": "{{count}} monuments"
+    "monumentsCount": "{{count}} monuments",
+    "ctaTitle": "Sign up for free",
+    "ctaText": "Create your account to explore all monuments, save favorites and access the interactive map",
+    "ctaButton": "Create free account"
   },
   "search": {
     "title": "Search monuments",

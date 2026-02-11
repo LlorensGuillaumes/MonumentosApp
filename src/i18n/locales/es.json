@@ -7,7 +7,8 @@
     "home": "Inicio",
     "search": "Buscar",
     "map": "Mapa",
-    "favorites": "Favoritos"
+    "favorites": "Favoritos",
+    "login": "Entrar"
   },
   "home": {
     "heroTitle": "Descubre el Patrimonio Europeo",
@@ -25,7 +26,10 @@
     "viewAll": "Ver todos",
     "exploreByCountry": "Explora por país",
     "exploreByRegion": "Explora por región",
-    "monumentsCount": "{{count}} monumentos"
+    "monumentsCount": "{{count}} monumentos",
+    "ctaTitle": "Regístrate gratis",
+    "ctaText": "Crea tu cuenta para explorar todos los monumentos, guardar favoritos y acceder al mapa interactivo",
+    "ctaButton": "Crear cuenta gratis"
   },
   "search": {
     "title": "Buscar monumentos",

@@ -28,6 +28,7 @@ function TabNavigator() {
           else if (route.name === 'Buscar') iconName = focused ? 'search' : 'search-outline';
           else if (route.name === 'Mapa') iconName = focused ? 'map' : 'map-outline';
           else if (route.name === 'Favoritos') iconName = focused ? 'heart' : 'heart-outline';
+          else if (route.name === 'Login') iconName = focused ? 'log-in' : 'log-in-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
         tabBarActiveTintColor: COLORS.primary,
@@ -50,25 +51,38 @@ function TabNavigator() {
         component={HomeScreen}
         options={{ title: t('header.title'), tabBarLabel: t('nav.home') }}
       />
-      <Tab.Screen
-        name="Buscar"
-        component={SearchScreen}
-        options={{ title: t('search.title'), tabBarLabel: t('nav.search') }}
-      />
-      <Tab.Screen
-        name="Mapa"
-        component={MapScreen}
-        options={{ title: t('map.title'), tabBarLabel: t('nav.map') }}
-      />
-      <Tab.Screen
-        name="Favoritos"
-        component={FavoritosScreen}
-        options={{
-          title: t('favorites.title'),
-          tabBarLabel: t('nav.favorites'),
-          tabBarBadge: user && favoritoIds.size > 0 ? favoritoIds.size : undefined,
-        }}
-      />
+      {user ? (
+        <>
+          <Tab.Screen
+            name="Buscar"
+            component={SearchScreen}
+            options={{ title: t('search.title'), tabBarLabel: t('nav.search') }}
+          />
+          <Tab.Screen
+            name="Mapa"
+            component={MapScreen}
+            options={{ title: t('map.title'), tabBarLabel: t('nav.map') }}
+          />
+          <Tab.Screen
+            name="Favoritos"
+            component={FavoritosScreen}
+            options={{
+              title: t('favorites.title'),
+              tabBarLabel: t('nav.favorites'),
+              tabBarBadge: favoritoIds.size > 0 ? favoritoIds.size : undefined,
+            }}
+          />
+        </>
+      ) : (
+        <Tab.Screen
+          name="Login"
+          component={LoginScreen}
+          options={{
+            title: t('auth.loginTitle'),
+            tabBarLabel: t('nav.login'),
+          }}
+        />
+      )}
     </Tab.Navigator>
   );
 }
@@ -97,14 +111,6 @@ export default function AppNavigator() {
           title: route.params?.title || t('detail.defaultTitle'),
           headerTitleStyle: { fontWeight: '600', fontSize: 16 },
         })}
-      />
-      <Stack.Screen
-        name="Login"
-        component={LoginScreen}
-        options={{
-          title: t('auth.loginTitle'),
-          presentation: 'modal',
-        }}
       />
     </Stack.Navigator>
   );
