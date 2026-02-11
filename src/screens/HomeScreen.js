@@ -8,6 +8,7 @@ import { useTranslation } from 'react-i18next';
 import { useApp } from '../context/AppContext';
 import { getMonumentos } from '../services/api';
 import MonumentoCard from '../components/MonumentoCard';
+import LanguageSelector from '../components/LanguageSelector';
 import { COLORS } from '../utils/colors';
 
 const FLAG_MAP = { 'España': '🇪🇸', 'Portugal': '🇵🇹', 'Francia': '🇫🇷' };
@@ -56,6 +57,10 @@ export default function HomeScreen({ navigation }) {
     >
       {/* Hero */}
       <View style={styles.hero}>
+        <View style={styles.heroTopRow}>
+          <View style={{ flex: 1 }} />
+          <LanguageSelector />
+        </View>
         <Text style={styles.heroTitle}>{t('home.heroTitle')}</Text>
         <Text style={styles.heroSubtitle}>
           {t('home.heroSubtitle', { count: stats?.total?.toLocaleString() || '100,000' })}
@@ -180,8 +185,13 @@ const styles = StyleSheet.create({
   hero: {
     backgroundColor: COLORS.dark,
     paddingHorizontal: 20,
-    paddingTop: 30,
+    paddingTop: 12,
     paddingBottom: 28,
+  },
+  heroTopRow: {
+    flexDirection: 'row',
+    justifyContent: 'flex-end',
+    marginBottom: 10,
   },
   heroTitle: {
     fontSize: 26,

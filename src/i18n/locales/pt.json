@@ -6,7 +6,8 @@
   "nav": {
     "home": "Início",
     "search": "Pesquisar",
-    "map": "Mapa"
+    "map": "Mapa",
+    "favorites": "Favoritos"
   },
   "home": {
     "heroTitle": "Descubra o Património Europeu",
@@ -140,6 +141,31 @@
   "footer": {
     "dataSources": "Fontes de dados:",
     "license": "Wikidata: CC0 | Wikipedia/Commons: CC BY-SA 3.0 | Dados abertos reutilizados de acordo com as respetivas licenças"
+  },
+  "auth": {
+    "loginTitle": "Iniciar sessão",
+    "registerTitle": "Criar conta",
+    "email": "Email",
+    "emailPlaceholder": "voce@email.com",
+    "password": "Palavra-passe",
+    "passwordMin": "Mínimo 6 caracteres",
+    "name": "Nome",
+    "namePlaceholder": "O seu nome",
+    "loginBtn": "Iniciar sessão",
+    "registerBtn": "Criar conta",
+    "noAccount": "Não tem conta?",
+    "hasAccount": "Já tem conta?",
+    "registerLink": "Registe-se",
+    "loginLink": "Inicie sessão",
+    "loading": "A carregar...",
+    "genericError": "Erro. Verifique os dados.",
+    "loginToFav": "Inicie sessão para guardar os seus monumentos favoritos"
+  },
+  "favorites": {
+    "title": "Favoritos",
+    "empty": "Ainda não tem favoritos. Explore e marque os monumentos de que mais gosta.",
+    "explore": "Explorar monumentos",
+    "count": "{{count}} favoritos"
   },
   "language": {
     "es": "Español",

@@ -5,13 +5,13 @@ import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../utils/colors';
 
 const LANGUAGES = [
-  { code: 'es', flag: '🇪🇸', label: 'Español' },
-  { code: 'en', flag: '🇬🇧', label: 'English' },
-  { code: 'fr', flag: '🇫🇷', label: 'Français' },
-  { code: 'pt', flag: '🇵🇹', label: 'Português' },
-  { code: 'ca', flag: '🏳️', label: 'Català' },
-  { code: 'eu', flag: '🏳️', label: 'Euskara' },
-  { code: 'gl', flag: '🏳️', label: 'Galego' },
+  { code: 'es', label: 'Español' },
+  { code: 'en', label: 'English' },
+  { code: 'fr', label: 'Français' },
+  { code: 'pt', label: 'Português' },
+  { code: 'ca', label: 'Català' },
+  { code: 'eu', label: 'Euskara' },
+  { code: 'gl', label: 'Galego' },
 ];
 
 export default function LanguageSelector() {
@@ -27,11 +27,11 @@ export default function LanguageSelector() {
   };
 
   return (
-    <>
+    <View style={styles.wrapper}>
       <TouchableOpacity style={styles.trigger} onPress={() => setVisible(true)}>
-        <Text style={styles.triggerFlag}>{current.flag}</Text>
-        <Text style={styles.triggerCode}>{current.code.toUpperCase()}</Text>
-        <Ionicons name="chevron-down" size={14} color="#fff" />
+        <Ionicons name="language" size={16} color="#fff" />
+        <Text style={styles.triggerLabel}>{current.label}</Text>
+        <Ionicons name="chevron-down" size={14} color="rgba(255,255,255,0.7)" />
       </TouchableOpacity>
 
       <Modal visible={visible} animationType="fade" transparent>
@@ -42,13 +42,14 @@ export default function LanguageSelector() {
         >
           <SafeAreaView>
             <View style={styles.dropdown}>
-              {LANGUAGES.map(({ code, flag, label }) => (
+              <Text style={styles.dropdownTitle}>Idioma / Language</Text>
+              {LANGUAGES.map(({ code, label }) => (
                 <TouchableOpacity
                   key={code}
                   style={[styles.option, currentLang === code && styles.optionActive]}
                   onPress={() => handleSelect(code)}
                 >
-                  <Text style={styles.optionFlag}>{flag}</Text>
+                  <Text style={styles.optionCode}>{code.toUpperCase()}</Text>
                   <Text style={[styles.optionLabel, currentLang === code && styles.optionLabelActive]}>
                     {label}
                   </Text>
@@ -61,27 +62,29 @@ export default function LanguageSelector() {
           </SafeAreaView>
         </TouchableOpacity>
       </Modal>
-    </>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
+  wrapper: {
+    marginRight: 12,
+  },
   trigger: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 4,
-    paddingHorizontal: 8,
-    paddingVertical: 4,
+    gap: 5,
+    paddingHorizontal: 10,
+    paddingVertical: 6,
     borderRadius: 8,
-    backgroundColor: 'rgba(255,255,255,0.1)',
+    backgroundColor: 'rgba(255,255,255,0.15)',
+    borderWidth: 1,
+    borderColor: 'rgba(255,255,255,0.2)',
   },
-  triggerFlag: {
-    fontSize: 16,
-  },
-  triggerCode: {
+  triggerLabel: {
     color: '#fff',
-    fontSize: 12,
-    fontWeight: '600',
+    fontSize: 13,
+    fontWeight: '500',
   },
   overlay: {
     flex: 1,
@@ -94,13 +97,22 @@ const styles = StyleSheet.create({
   dropdown: {
     backgroundColor: COLORS.surface,
     borderRadius: 12,
-    paddingVertical: 4,
-    minWidth: 180,
+    paddingVertical: 6,
+    minWidth: 200,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 12,
     elevation: 8,
+  },
+  dropdownTitle: {
+    fontSize: 12,
+    color: COLORS.textSecondary,
+    fontWeight: '600',
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
   },
   option: {
     flexDirection: 'row',
@@ -112,8 +124,11 @@ const styles = StyleSheet.create({
   optionActive: {
     backgroundColor: COLORS.primary + '10',
   },
-  optionFlag: {
-    fontSize: 20,
+  optionCode: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: COLORS.textSecondary,
+    width: 24,
   },
   optionLabel: {
     flex: 1,

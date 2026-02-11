@@ -9,3 +9,16 @@ npm-debug.*
 *.mobileprovision
 *.orig.*
 web-build/
+
+# Environment
+.env
+.env.*
+
+# Claude
+.claude/
+
+# Windows artifacts
+nul
+
+# Data samples
+rael_sample.json

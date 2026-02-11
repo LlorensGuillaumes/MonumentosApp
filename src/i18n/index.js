@@ -24,6 +24,7 @@ i18n
       eu: { translation: eu },
       gl: { translation: gl },
     },
+    supportedLngs: ['es', 'en', 'fr', 'pt', 'ca', 'eu', 'gl'],
     lng: deviceLanguage,
     fallbackLng: 'es',
     interpolation: {

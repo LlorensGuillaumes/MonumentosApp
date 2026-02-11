@@ -6,7 +6,8 @@
   "nav": {
     "home": "Inici",
     "search": "Cercar",
-    "map": "Mapa"
+    "map": "Mapa",
+    "favorites": "Preferits"
   },
   "home": {
     "heroTitle": "Descobreix el Patrimoni Europeu",
@@ -140,6 +141,31 @@
   "footer": {
     "dataSources": "Fonts de dades:",
     "license": "Wikidata: CC0 | Viquipèdia/Commons: CC BY-SA 3.0 | Dades obertes reutilitzades segons les seves respectives llicències"
+  },
+  "auth": {
+    "loginTitle": "Iniciar sessió",
+    "registerTitle": "Crear compte",
+    "email": "Correu electrònic",
+    "emailPlaceholder": "tu@email.com",
+    "password": "Contrasenya",
+    "passwordMin": "Mínim 6 caràcters",
+    "name": "Nom",
+    "namePlaceholder": "El teu nom",
+    "loginBtn": "Iniciar sessió",
+    "registerBtn": "Crear compte",
+    "noAccount": "No tens compte?",
+    "hasAccount": "Ja tens compte?",
+    "registerLink": "Registra't",
+    "loginLink": "Inicia sessió",
+    "loading": "Carregant...",
+    "genericError": "Error. Comprova les dades.",
+    "loginToFav": "Inicia sessió per desar els teus monuments preferits"
+  },
+  "favorites": {
+    "title": "Preferits",
+    "empty": "Encara no tens preferits. Explora i marca els monuments que més t'agradin.",
+    "explore": "Explorar monuments",
+    "count": "{{count}} preferits"
   },
   "language": {
     "es": "Español",

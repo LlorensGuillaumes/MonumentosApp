@@ -6,7 +6,8 @@
   "nav": {
     "home": "Hasiera",
     "search": "Bilatu",
-    "map": "Mapa"
+    "map": "Mapa",
+    "favorites": "Gogokoak"
   },
   "home": {
     "heroTitle": "Ezagutu Europako Ondarea",
@@ -140,6 +141,31 @@
   "footer": {
     "dataSources": "Datu-iturriak:",
     "license": "Wikidata: CC0 | Wikipedia/Commons: CC BY-SA 3.0 | Datu irekiak dagozkien lizentzien arabera berrerabiliak"
+  },
+  "auth": {
+    "loginTitle": "Saioa hasi",
+    "registerTitle": "Kontua sortu",
+    "email": "Emaila",
+    "emailPlaceholder": "zu@email.com",
+    "password": "Pasahitza",
+    "passwordMin": "Gutxienez 6 karaktere",
+    "name": "Izena",
+    "namePlaceholder": "Zure izena",
+    "loginBtn": "Saioa hasi",
+    "registerBtn": "Kontua sortu",
+    "noAccount": "Ez duzu konturik?",
+    "hasAccount": "Dagoeneko kontu bat duzu?",
+    "registerLink": "Erregistratu",
+    "loginLink": "Hasi saioa",
+    "loading": "Kargatzen...",
+    "genericError": "Errorea. Egiaztatu datuak.",
+    "loginToFav": "Hasi saioa zure monumentu gogokoenak gordetzeko"
+  },
+  "favorites": {
+    "title": "Gogokoak",
+    "empty": "Oraindik ez duzu gogokorik. Esploratu eta markatu gehien gustatzen zaizkizun monumentuak.",
+    "explore": "Monumentuak esploratu",
+    "count": "{{count}} gogoko"
   },
   "language": {
     "es": "Español",

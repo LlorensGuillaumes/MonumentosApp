@@ -6,6 +6,7 @@ import {
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
 import { getMonumento } from '../services/api';
+import { useAuth } from '../context/AuthContext';
 import LeafletMap from '../components/LeafletMap';
 import { getCategoryColor, getCategoryIcon, COLORS } from '../utils/colors';
 import { imageSource } from '../utils/image';
@@ -14,12 +15,24 @@ const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function DetailScreen({ route, navigation }) {
   const { t } = useTranslation();
+  const { user, isFavorito, toggleFavorito } = useAuth();
   const { id } = route.params;
   const [monumento, setMonumento] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [favLoading, setFavLoading] = useState(false);
   const galleryRef = useRef(null);
+
+  const handleToggleFav = async () => {
+    if (!user) {
+      navigation.navigate('Login');
+      return;
+    }
+    setFavLoading(true);
+    await toggleFavorito(id);
+    setFavLoading(false);
+  };
 
   function formatInception(value) {
     if (!value) return value;
@@ -151,6 +164,17 @@ export default function DetailScreen({ route, navigation }) {
         <View style={styles.titleRow}>
           <Text style={styles.iconEmoji}>{icon}</Text>
           <Text style={styles.title}>{monumento.denominacion}</Text>
+          <TouchableOpacity
+            style={styles.favButton}
+            onPress={handleToggleFav}
+            disabled={favLoading}
+          >
+            <Ionicons
+              name={isFavorito(id) ? 'heart' : 'heart-outline'}
+              size={26}
+              color={isFavorito(id) ? '#e53e3e' : COLORS.textSecondary}
+            />
+          </TouchableOpacity>
         </View>
         {locationParts.length > 0 && (
           <Text style={styles.location}>📍 {locationParts.join(', ')}</Text>
@@ -402,6 +426,10 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'flex-start',
     gap: 8,
+  },
+  favButton: {
+    padding: 4,
+    marginTop: 2,
   },
   iconEmoji: {
     fontSize: 24,
