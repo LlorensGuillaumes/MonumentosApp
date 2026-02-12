@@ -24,6 +24,11 @@ export default function FilterModal({ visible, onClose, onSearch }) {
         provincia: t('filters.france.province'),
         municipio: t('filters.france.municipality'),
       };
+      case 'Italia': return {
+        region: t('filters.italy.region'),
+        provincia: t('filters.italy.province'),
+        municipio: t('filters.italy.municipality'),
+      };
       default: return {
         region: t('filters.region'),
         provincia: t('filters.province'),

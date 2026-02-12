@@ -12,7 +12,7 @@ import MonumentoCard from '../components/MonumentoCard';
 import LanguageSelector from '../components/LanguageSelector';
 import { COLORS } from '../utils/colors';
 
-const FLAG_MAP = { 'España': '🇪🇸', 'Portugal': '🇵🇹', 'Francia': '🇫🇷' };
+const FLAG_MAP = { 'España': '🇪🇸', 'Italia': '🇮🇹', 'Portugal': '🇵🇹', 'Francia': '🇫🇷' };
 
 export default function HomeScreen({ navigation }) {
   const { t } = useTranslation();

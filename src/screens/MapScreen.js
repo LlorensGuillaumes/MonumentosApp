@@ -28,7 +28,8 @@ export default function MapScreen({ navigation }) {
       case 'Portugal': return { lat: 39.5, lng: -8.0 };
       case 'Francia': return { lat: 46.6, lng: 2.2 };
       case 'España': return { lat: 40.4, lng: -3.7 };
-      default: return { lat: 43.0, lng: -2.0 };
+      case 'Italia': return { lat: 41.9, lng: 12.5 };
+      default: return { lat: 44.0, lng: 6.0 };
     }
   };
 
@@ -36,7 +37,8 @@ export default function MapScreen({ navigation }) {
     switch (filters.pais) {
       case 'Portugal': return 7;
       case 'Francia':
-      case 'España': return 6;
+      case 'España':
+      case 'Italia': return 6;
       default: return 5;
     }
   };
