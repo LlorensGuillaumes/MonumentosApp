@@ -22,13 +22,14 @@ export default function SearchScreen({ navigation, route }) {
   const [totalPages, setTotalPages] = useState(0);
   const [loading, setLoading] = useState(false);
   const [limit, setLimit] = useState(24);
-  const [sort, setSort] = useState('nombre_asc');
+  const [sort, setSort] = useState('relevancia');
   const [filtersVisible, setFiltersVisible] = useState(false);
   const [searchText, setSearchText] = useState('');
   const isFirstRender = useRef(true);
   const flatListRef = useRef(null);
 
   const SORT_OPTIONS = [
+    { value: 'relevancia', label: t('search.relevance') },
     { value: 'nombre_asc', label: t('search.sortAZ') },
     { value: 'nombre_desc', label: t('search.sortZA') },
     { value: 'municipio_asc', label: t('search.municipalityAZ') },
