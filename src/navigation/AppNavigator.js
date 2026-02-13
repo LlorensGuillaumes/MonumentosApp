@@ -12,6 +12,8 @@ import DetailScreen from '../screens/DetailScreen';
 import LoginScreen from '../screens/LoginScreen';
 import FavoritosScreen from '../screens/FavoritosScreen';
 import ContactScreen from '../screens/ContactScreen';
+import ProposeScreen from '../screens/ProposeScreen';
+import MyProposalsScreen from '../screens/MyProposalsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -29,6 +31,7 @@ function TabNavigator() {
           else if (route.name === 'Buscar') iconName = focused ? 'search' : 'search-outline';
           else if (route.name === 'Mapa') iconName = focused ? 'map' : 'map-outline';
           else if (route.name === 'Favoritos') iconName = focused ? 'heart' : 'heart-outline';
+          else if (route.name === 'Proponer') iconName = focused ? 'add-circle' : 'add-circle-outline';
           else if (route.name === 'Contacto') iconName = focused ? 'mail' : 'mail-outline';
           else if (route.name === 'Login') iconName = focused ? 'log-in' : 'log-in-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
@@ -74,6 +77,11 @@ function TabNavigator() {
               tabBarBadge: favoritoIds.size > 0 ? favoritoIds.size : undefined,
             }}
           />
+          <Tab.Screen
+            name="Proponer"
+            component={ProposeScreen}
+            options={{ title: t('proposal.title'), tabBarLabel: t('nav.propose') }}
+          />
         </>
       ) : (
         <Tab.Screen
@@ -110,6 +118,11 @@ export default function AppNavigator() {
         name="Tabs"
         component={TabNavigator}
         options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name="MyProposals"
+        component={MyProposalsScreen}
+        options={{ title: t('proposal.myProposals') }}
       />
       <Stack.Screen
         name="Detail"

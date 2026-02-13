@@ -24,6 +24,7 @@ export default function DetailScreen({ route, navigation }) {
   const [favLoading, setFavLoading] = useState(false);
   const [wikiExtract, setWikiExtract] = useState(null);
   const [wikiLoading, setWikiLoading] = useState(false);
+  const [failedImages, setFailedImages] = useState(new Set());
   const galleryRef = useRef(null);
 
   const handleToggleFav = async () => {
@@ -137,10 +138,17 @@ export default function DetailScreen({ route, navigation }) {
             data={allImages}
             keyExtractor={(_, i) => String(i)}
             renderItem={({ item }) => (
-              <Image
-                source={imageSource(item.url)}
-                style={styles.mainImage}
-              />
+              failedImages.has(item.url) ? (
+                <View style={[styles.mainImage, styles.imagePlaceholder]}>
+                  <Ionicons name="image-outline" size={48} color="#c0c0c0" />
+                </View>
+              ) : (
+                <Image
+                  source={imageSource(item.url)}
+                  style={styles.mainImage}
+                  onError={() => setFailedImages(prev => new Set(prev).add(item.url))}
+                />
+              )
             )}
             showsHorizontalScrollIndicator={false}
             onMomentumScrollEnd={(e) => {
@@ -158,10 +166,17 @@ export default function DetailScreen({ route, navigation }) {
                     galleryRef.current?.scrollToOffset({ offset: i * SCREEN_WIDTH, animated: true });
                   }}
                 >
-                  <Image
-                    source={imageSource(img.url)}
-                    style={[styles.thumb, i === selectedImageIndex && styles.thumbActive]}
-                  />
+                  {failedImages.has(img.url) ? (
+                    <View style={[styles.thumb, styles.thumbPlaceholder, i === selectedImageIndex && styles.thumbActive]}>
+                      <Ionicons name="image-outline" size={18} color="#c0c0c0" />
+                    </View>
+                  ) : (
+                    <Image
+                      source={imageSource(img.url)}
+                      style={[styles.thumb, i === selectedImageIndex && styles.thumbActive]}
+                      onError={() => setFailedImages(prev => new Set(prev).add(img.url))}
+                    />
+                  )}
                 </TouchableOpacity>
               ))}
             </View>
@@ -431,6 +446,16 @@ const styles = StyleSheet.create({
   },
   thumbActive: {
     borderColor: COLORS.primary,
+  },
+  imagePlaceholder: {
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  thumbPlaceholder: {
+    backgroundColor: '#f0f0f0',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   imageCounter: {
     position: 'absolute',
