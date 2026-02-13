@@ -87,4 +87,18 @@ export const addFavorito = (bienId) =>
 export const removeFavorito = (bienId) =>
   api.delete(`/favoritos/${bienId}`).then(r => r.data);
 
+// ============== CONTACTO ==============
+
+export const sendContact = ({ email, asunto, mensaje, archivos = [] }) => {
+  const formData = new FormData();
+  formData.append('email', email);
+  formData.append('asunto', asunto);
+  formData.append('mensaje', mensaje);
+  archivos.forEach(file => formData.append('archivos', file));
+  return api.post('/contact', formData, {
+    headers: { 'Content-Type': 'multipart/form-data' },
+    timeout: 30000,
+  }).then(r => r.data);
+};
+
 export default api;

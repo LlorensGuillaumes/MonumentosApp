@@ -8,7 +8,8 @@
     "search": "Cercar",
     "map": "Mapa",
     "favorites": "Preferits",
-    "login": "Entrar"
+    "login": "Entrar",
+    "contact": "Contacte"
   },
   "home": {
     "heroTitle": "Descobreix el Patrimoni Europeu",
@@ -178,6 +179,22 @@
     "empty": "Encara no tens preferits. Explora i marca els monuments que més t'agradin.",
     "explore": "Explorar monuments",
     "count": "{{count}} preferits"
+  },
+  "contact": {
+    "title": "Contacte",
+    "subtitle": "Envia'ns un missatge i et respondrem tan aviat com sigui possible.",
+    "email": "El teu email",
+    "emailPlaceholder": "tu@email.com",
+    "subject": "Assumpte",
+    "subjectPlaceholder": "Assumpte del missatge",
+    "message": "Missatge",
+    "messagePlaceholder": "Escriu el teu missatge aquí...",
+    "attachments": "Fitxers adjunts",
+    "addFile": "Afegir fitxer",
+    "send": "Enviar missatge",
+    "sending": "Enviant...",
+    "success": "Missatge enviat correctament. Et respondrem aviat.",
+    "error": "Error en enviar el missatge. Torna-ho a provar."
   },
   "language": {
     "es": "Español",

@@ -11,6 +11,7 @@ import MapScreen from '../screens/MapScreen';
 import DetailScreen from '../screens/DetailScreen';
 import LoginScreen from '../screens/LoginScreen';
 import FavoritosScreen from '../screens/FavoritosScreen';
+import ContactScreen from '../screens/ContactScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -28,6 +29,7 @@ function TabNavigator() {
           else if (route.name === 'Buscar') iconName = focused ? 'search' : 'search-outline';
           else if (route.name === 'Mapa') iconName = focused ? 'map' : 'map-outline';
           else if (route.name === 'Favoritos') iconName = focused ? 'heart' : 'heart-outline';
+          else if (route.name === 'Contacto') iconName = focused ? 'mail' : 'mail-outline';
           else if (route.name === 'Login') iconName = focused ? 'log-in' : 'log-in-outline';
           return <Ionicons name={iconName} size={size} color={color} />;
         },
@@ -83,6 +85,11 @@ function TabNavigator() {
           }}
         />
       )}
+      <Tab.Screen
+        name="Contacto"
+        component={ContactScreen}
+        options={{ title: t('contact.title'), tabBarLabel: t('nav.contact') }}
+      />
     </Tab.Navigator>
   );
 }

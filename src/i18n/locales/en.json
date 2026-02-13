@@ -8,7 +8,8 @@
     "search": "Search",
     "map": "Map",
     "favorites": "Favorites",
-    "login": "Log in"
+    "login": "Log in",
+    "contact": "Contact"
   },
   "home": {
     "heroTitle": "Discover European Heritage",
@@ -178,6 +179,22 @@
     "empty": "You have no favorites yet. Explore and mark the monuments you like most.",
     "explore": "Explore monuments",
     "count": "{{count}} favorites"
+  },
+  "contact": {
+    "title": "Contact",
+    "subtitle": "Send us a message and we'll get back to you as soon as possible.",
+    "email": "Your email",
+    "emailPlaceholder": "you@email.com",
+    "subject": "Subject",
+    "subjectPlaceholder": "Message subject",
+    "message": "Message",
+    "messagePlaceholder": "Write your message here...",
+    "attachments": "Attachments",
+    "addFile": "Add file",
+    "send": "Send message",
+    "sending": "Sending...",
+    "success": "Message sent successfully. We'll reply soon.",
+    "error": "Error sending message. Please try again."
   },
   "language": {
     "es": "Español",

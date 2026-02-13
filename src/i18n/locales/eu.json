@@ -8,7 +8,8 @@
     "search": "Bilatu",
     "map": "Mapa",
     "favorites": "Gogokoak",
-    "login": "Sartu"
+    "login": "Sartu",
+    "contact": "Kontaktua"
   },
   "home": {
     "heroTitle": "Ezagutu Europako Ondarea",
@@ -178,6 +179,22 @@
     "empty": "Oraindik ez duzu gogokorik. Esploratu eta markatu gehien gustatzen zaizkizun monumentuak.",
     "explore": "Monumentuak esploratu",
     "count": "{{count}} gogoko"
+  },
+  "contact": {
+    "title": "Kontaktua",
+    "subtitle": "Bidali mezu bat eta ahalik eta lasterren erantzungo dizugu.",
+    "email": "Zure emaila",
+    "emailPlaceholder": "zu@email.com",
+    "subject": "Gaia",
+    "subjectPlaceholder": "Mezuaren gaia",
+    "message": "Mezua",
+    "messagePlaceholder": "Idatzi zure mezua hemen...",
+    "attachments": "Eranskinak",
+    "addFile": "Fitxategia gehitu",
+    "send": "Mezua bidali",
+    "sending": "Bidaltzen...",
+    "success": "Mezua ondo bidali da. Laster erantzungo dizugu.",
+    "error": "Errorea mezua bidaltzean. Saiatu berriro."
   },
   "language": {
     "es": "Español",
