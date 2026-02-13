@@ -5,7 +5,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { getMonumento } from '../services/api';
+import { getMonumento, getWikipediaExtract } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import LeafletMap from '../components/LeafletMap';
 import { getCategoryColor, getCategoryIcon, COLORS } from '../utils/colors';
@@ -22,6 +22,8 @@ export default function DetailScreen({ route, navigation }) {
   const [error, setError] = useState(null);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [favLoading, setFavLoading] = useState(false);
+  const [wikiExtract, setWikiExtract] = useState(null);
+  const [wikiLoading, setWikiLoading] = useState(false);
   const galleryRef = useRef(null);
 
   const handleToggleFav = async () => {
@@ -45,6 +47,7 @@ export default function DetailScreen({ route, navigation }) {
 
   useEffect(() => {
     setLoading(true);
+    setWikiExtract(null);
     getMonumento(id)
       .then(data => {
         setMonumento(data);
@@ -53,6 +56,18 @@ export default function DetailScreen({ route, navigation }) {
       .catch(err => setError(err.message))
       .finally(() => setLoading(false));
   }, [id, navigation]);
+
+  useEffect(() => {
+    if (!monumento) return;
+    const needsWikipedia = !monumento.descripcion_completa
+      && (!monumento.wiki_descripcion || monumento.wiki_descripcion.length < 150)
+      && monumento.wikipedia_url;
+    if (!needsWikipedia) return;
+    setWikiLoading(true);
+    getWikipediaExtract(monumento.id)
+      .then(data => { if (data?.extract) setWikiExtract(data.extract); })
+      .finally(() => setWikiLoading(false));
+  }, [monumento]);
 
   if (loading) {
     return (
@@ -206,14 +221,28 @@ export default function DetailScreen({ route, navigation }) {
       </View>
 
       {/* Description */}
-      {(monumento.wiki_descripcion || monumento.descripcion_completa) && (
+      {(monumento.descripcion_completa || monumento.wiki_descripcion || wikiExtract) ? (
         <View style={styles.section}>
           <Text style={styles.sectionTitle}>{t('detail.description')}</Text>
-          <Text style={styles.paragraph}>
-            {monumento.descripcion_completa || monumento.wiki_descripcion}
-          </Text>
+          {monumento.descripcion_completa ? (
+            <Text style={styles.paragraph}>{monumento.descripcion_completa}</Text>
+          ) : wikiExtract ? (
+            <>
+              <Text style={styles.paragraph}>{wikiExtract}</Text>
+              <TouchableOpacity onPress={() => openURL(monumento.wikipedia_url)}>
+                <Text style={styles.wikiAttribution}>{t('detail.sourceWikipedia')}</Text>
+              </TouchableOpacity>
+            </>
+          ) : monumento.wiki_descripcion ? (
+            <Text style={styles.paragraph}>{monumento.wiki_descripcion}</Text>
+          ) : null}
         </View>
-      )}
+      ) : wikiLoading ? (
+        <View style={styles.section}>
+          <Text style={styles.sectionTitle}>{t('detail.description')}</Text>
+          <Text style={styles.wikiLoadingText}>{t('detail.loadingWikipedia')}</Text>
+        </View>
+      ) : null}
 
       {/* History */}
       {monumento.sintesis_historica && (
@@ -556,5 +585,16 @@ const styles = StyleSheet.create({
     fontSize: 14,
     fontWeight: '500',
     color: COLORS.primary,
+  },
+  wikiAttribution: {
+    marginTop: 10,
+    fontSize: 13,
+    color: COLORS.primary,
+    fontStyle: 'italic',
+  },
+  wikiLoadingText: {
+    fontSize: 14,
+    color: COLORS.textSecondary,
+    fontStyle: 'italic',
   },
 });
