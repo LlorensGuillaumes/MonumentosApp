@@ -9,6 +9,10 @@ export default function FilterModal({ visible, onClose, onSearch }) {
   const { t } = useTranslation();
   const { filters, filtros, setFilter, resetFilters, reloadFiltros } = useApp();
 
+  // Traduce las opciones de filtro manteniendo el value original (español/BD)
+  const translateOptions = (options, i18nPrefix) =>
+    options?.map(o => ({ ...o, label: t(`${i18nPrefix}.${o.value}`, o.value) })) || [];
+
   if (!filtros) return null;
 
   // Labels dinámicos según país
@@ -120,7 +124,7 @@ export default function FilterModal({ visible, onClose, onSearch }) {
               label={t('filters.country')}
               value={filters.pais}
               onChange={handlePaisChange}
-              options={filtros.paises}
+              options={translateOptions(filtros.paises, 'filters.countries')}
               placeholder={t('filters.allCountries')}
             />
           )}
