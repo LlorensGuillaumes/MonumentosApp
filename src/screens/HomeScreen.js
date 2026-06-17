@@ -91,6 +91,70 @@ export default function HomeScreen({ navigation }) {
             <Text style={styles.secondaryButtonText}>{t('home.viewOnMap')}</Text>
           </TouchableOpacity>
         </View>
+        <View style={styles.heroExtras}>
+          <TouchableOpacity
+            style={styles.extraButton}
+            onPress={() => requireAuth(() => navigation.navigate('Autores'))}
+          >
+            <Ionicons name="person" size={16} color={COLORS.primary} />
+            <Text style={styles.extraButtonText}>{t('home.viewAuthors', 'Autors')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.extraButton}
+            onPress={() => navigation.navigate('Compare')}
+          >
+            <Ionicons name="git-compare" size={16} color={COLORS.primary} />
+            <Text style={styles.extraButtonText}>{t('home.viewCompare', 'Comparar')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.extraButton}
+            onPress={() => navigation.navigate('CuratedRoutes')}
+          >
+            <Ionicons name="trail-sign" size={16} color={COLORS.primary} />
+            <Text style={styles.extraButtonText}>{t('home.viewRoutes', 'Rutes')}</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            style={styles.extraButton}
+            onPress={() => navigation.navigate('Pricing')}
+          >
+            <Ionicons name="pricetag" size={16} color={COLORS.primary} />
+            <Text style={styles.extraButtonText}>{t('home.viewPricing', 'Plans')}</Text>
+          </TouchableOpacity>
+          {user && (
+            <>
+              <TouchableOpacity
+                style={styles.extraButton}
+                onPress={() => navigation.navigate('Diary')}
+              >
+                <Ionicons name="book" size={16} color={COLORS.primary} />
+                <Text style={styles.extraButtonText}>{t('home.viewDiary', 'Diari')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.extraButton}
+                onPress={() => navigation.navigate('UserStats')}
+              >
+                <Ionicons name="stats-chart" size={16} color={COLORS.primary} />
+                <Text style={styles.extraButtonText}>{t('home.viewStats', 'Estadístiques')}</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.extraButton}
+                onPress={() => navigation.navigate('Profile')}
+              >
+                <Ionicons name="person-circle" size={16} color={COLORS.primary} />
+                <Text style={styles.extraButtonText}>{t('home.viewProfile', 'Perfil')}</Text>
+              </TouchableOpacity>
+              {user.rol === 'admin' && (
+                <TouchableOpacity
+                  style={styles.extraButton}
+                  onPress={() => navigation.navigate('Preguntame')}
+                >
+                  <Ionicons name="chatbubbles" size={16} color={COLORS.primary} />
+                  <Text style={styles.extraButtonText}>{t('home.viewPreguntame', 'Pregunta\'m')}</Text>
+                </TouchableOpacity>
+              )}
+            </>
+          )}
+        </View>
       </View>
 
       {/* Stats */}
@@ -261,6 +325,26 @@ const styles = StyleSheet.create({
     color: COLORS.primary,
     fontWeight: '600',
     fontSize: 14,
+  },
+  heroExtras: {
+    flexDirection: 'row',
+    gap: 8,
+    marginTop: 10,
+    justifyContent: 'center',
+  },
+  extraButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 5,
+    backgroundColor: 'rgba(255,255,255,0.9)',
+    paddingHorizontal: 12,
+    paddingVertical: 8,
+    borderRadius: 16,
+  },
+  extraButtonText: {
+    color: COLORS.primary,
+    fontWeight: '600',
+    fontSize: 12,
   },
   // Stats
   statsGrid: {

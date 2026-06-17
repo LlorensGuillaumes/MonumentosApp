@@ -198,12 +198,38 @@ function getCatColor(cat, tipo) {
   return '#3b82f6';
 }
 
+// Hispania Nostra: override per casos hardcoded + heritage_label / hn_lista
+var HN_SYNERGY_OVERRIDE_MAP = {
+  230187: 'verde',
+  24724: 'negra',
+  24718: 'negra',
+  78209: 'roja'
+};
+var HN_COLORS = { roja: '#dc2626', verde: '#16a34a', negra: '#1f2937' };
+
+function getHNListType(m) {
+  if (!m) return null;
+  if (HN_SYNERGY_OVERRIDE_MAP[m.id]) return HN_SYNERGY_OVERRIDE_MAP[m.id];
+  if (m.hn_lista && ['roja','verde','negra'].indexOf(m.hn_lista) >= 0) return m.hn_lista;
+  var fields = [m.heritage_label, m.tipo, m.categoria].filter(Boolean);
+  for (var i = 0; i < fields.length; i++) {
+    var mt = fields[i].toLowerCase().match(/lista\\s+(roja|verde|verda|negra)/);
+    if (mt) return mt[1] === 'verda' ? 'verde' : mt[1];
+  }
+  return null;
+}
+
 function renderMarkers(data) {
   markerLayer.clearLayers();
   data.forEach(function(m) {
-    var color = m.color || getCatColor(m.categoria, m.tipo);
+    var hnList = getHNListType(m);
+    var color = hnList ? HN_COLORS[hnList] : (m.color || getCatColor(m.categoria, m.tipo));
     var circle = L.circleMarker([m.lat, m.lng], {
-      radius: 6, fillColor: color, fillOpacity: 0.8, color: '#fff', weight: 1,
+      radius: hnList ? 9 : 6,
+      fillColor: color,
+      fillOpacity: hnList ? 0.9 : 0.8,
+      color: '#fff',
+      weight: hnList ? 2 : 1,
     }).addTo(markerLayer);
     circle.bindPopup('<b>'+( m.title||'')+'</b><br>'+(m.subtitle||'')+
       '<button class="popup-btn" onclick="window.ReactNativeWebView.postMessage(JSON.stringify({type:\\'markerPress\\',id:'+m.id+'}))">' + TRANSLATIONS.viewDetail + '</button>');

@@ -1,12 +1,17 @@
 import { useEffect, useState, useRef } from 'react';
 import {
-  View, Text, ScrollView, Image, TouchableOpacity, FlatList,
-  ActivityIndicator, Linking, StyleSheet, Dimensions,
+  View, Text, ScrollView, Image, TouchableOpacity, FlatList, TextInput,
+  ActivityIndicator, Linking, StyleSheet, Dimensions, Alert,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useTranslation } from 'react-i18next';
-import { getMonumento, getWikipediaExtract } from '../services/api';
+import {
+  getMonumento, getWikipediaExtract,
+  getNotasMonumento, addNotaMonumento, deleteNotaMonumento,
+  getValoraciones, addValoracion,
+} from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useApp } from '../context/AppContext';
 import LeafletMap from '../components/LeafletMap';
 import { getCategoryColor, getCategoryIcon, COLORS } from '../utils/colors';
 import { imageSource } from '../utils/image';
@@ -14,8 +19,9 @@ import { imageSource } from '../utils/image';
 const { width: SCREEN_WIDTH } = Dimensions.get('window');
 
 export default function DetailScreen({ route, navigation }) {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
   const { user, isFavorito, toggleFavorito } = useAuth();
+  const { compareList, addToCompare, removeFromCompare } = useApp();
   const { id } = route.params;
   const [monumento, setMonumento] = useState(null);
   const [loading, setLoading] = useState(true);
@@ -23,7 +29,18 @@ export default function DetailScreen({ route, navigation }) {
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
   const [favLoading, setFavLoading] = useState(false);
   const [wikiExtract, setWikiExtract] = useState(null);
+  const [wikiExtractLang, setWikiExtractLang] = useState(null);
   const [wikiLoading, setWikiLoading] = useState(false);
+  // Notas
+  const [notas, setNotas] = useState([]);
+  const [showAddNota, setShowAddNota] = useState(false);
+  const [notaText, setNotaText] = useState('');
+  const [notaTipo, setNotaTipo] = useState('nota');
+  const [notaSubmitting, setNotaSubmitting] = useState(false);
+  // Valoraciones
+  const [ratings, setRatings] = useState(null);
+  const [userRating, setUserRating] = useState(0);
+  const [ratingSaving, setRatingSaving] = useState(false);
   const [failedImages, setFailedImages] = useState(new Set());
   const galleryRef = useRef(null);
 
@@ -58,6 +75,62 @@ export default function DetailScreen({ route, navigation }) {
       .finally(() => setLoading(false));
   }, [id, navigation]);
 
+  // Carregar notes + valoracions un cop tenim el monument
+  useEffect(() => {
+    if (!monumento?.id) return;
+    getNotasMonumento(monumento.id).then(setNotas).catch(() => setNotas([]));
+    getValoraciones(monumento.id).then(data => {
+      setRatings(data);
+      if (data?.user_rating) setUserRating(data.user_rating.general || 0);
+    }).catch(() => setRatings(null));
+  }, [monumento?.id]);
+
+  const handleAddNota = async () => {
+    if (!notaText.trim()) return;
+    setNotaSubmitting(true);
+    try {
+      const nova = await addNotaMonumento(monumento.id, notaTipo, notaText.trim());
+      setNotas(prev => [nova, ...prev]);
+      setNotaText('');
+      setShowAddNota(false);
+    } catch (err) {
+      Alert.alert(err.response?.data?.error || t('detail.errorNota', 'Error al desar la nota'));
+    } finally {
+      setNotaSubmitting(false);
+    }
+  };
+
+  const handleDeleteNota = (notaId) => {
+    Alert.alert(t('detail.deleteNotaConfirm', 'Eliminar nota?'), '', [
+      { text: t('common.cancel', 'Cancel·lar'), style: 'cancel' },
+      {
+        text: t('common.delete', 'Eliminar'),
+        style: 'destructive',
+        onPress: async () => {
+          try {
+            await deleteNotaMonumento(monumento.id, notaId);
+            setNotas(prev => prev.filter(n => n.id !== notaId));
+          } catch { /* ignore */ }
+        },
+      },
+    ]);
+  };
+
+  const handleRate = async (star) => {
+    if (!user || ratingSaving) return;
+    setUserRating(star);
+    setRatingSaving(true);
+    try {
+      await addValoracion(monumento.id, { general: star });
+      const refreshed = await getValoraciones(monumento.id);
+      setRatings(refreshed);
+    } catch (err) {
+      Alert.alert(err.response?.data?.error || t('detail.errorRating', 'Error al valorar'));
+    } finally {
+      setRatingSaving(false);
+    }
+  };
+
   useEffect(() => {
     if (!monumento) return;
     const needsWikipedia = !monumento.descripcion_completa
@@ -65,8 +138,15 @@ export default function DetailScreen({ route, navigation }) {
       && monumento.wikipedia_url;
     if (!needsWikipedia) return;
     setWikiLoading(true);
-    getWikipediaExtract(monumento.id)
-      .then(data => { if (data?.extract) setWikiExtract(data.extract); })
+    setWikiExtract(null);
+    setWikiExtractLang(null);
+    getWikipediaExtract(monumento.id, i18n.language)
+      .then(data => {
+        if (data?.extract) {
+          setWikiExtract(data.extract);
+          setWikiExtractLang(data.lang || null);
+        }
+      })
       .finally(() => setWikiLoading(false));
   }, [monumento]);
 
@@ -205,6 +285,25 @@ export default function DetailScreen({ route, navigation }) {
               color={isFavorito(id) ? '#e53e3e' : COLORS.textSecondary}
             />
           </TouchableOpacity>
+          {(() => {
+            const inCompare = compareList.find(m => m.id === monumento.id);
+            const disabled = !inCompare && compareList.length >= 3;
+            return (
+              <TouchableOpacity
+                style={[styles.favButton, disabled && { opacity: 0.4 }]}
+                onPress={() => inCompare
+                  ? removeFromCompare(monumento.id)
+                  : addToCompare(monumento)}
+                disabled={disabled}
+              >
+                <Ionicons
+                  name={inCompare ? 'git-compare' : 'git-compare-outline'}
+                  size={24}
+                  color={inCompare ? COLORS.primary : COLORS.textSecondary}
+                />
+              </TouchableOpacity>
+            );
+          })()}
         </View>
         {locationParts.length > 0 && (
           <Text style={styles.location}>📍 {locationParts.join(', ')}</Text>
@@ -212,12 +311,15 @@ export default function DetailScreen({ route, navigation }) {
 
         {/* Tags */}
         <View style={styles.tags}>
-          {monumento.categoria && (
+          {monumento.categoria
+            && monumento.categoria !== monumento.heritage_label && (
             <View style={[styles.tag, { backgroundColor: accentColor + '15' }]}>
               <Text style={[styles.tagText, { color: accentColor }]}>{monumento.categoria}</Text>
             </View>
           )}
-          {monumento.tipo && (
+          {monumento.tipo
+            && monumento.tipo !== monumento.heritage_label
+            && monumento.tipo !== monumento.categoria && (
             <View style={styles.tagOutline}>
               <Text style={styles.tagOutlineText}>{monumento.tipo}</Text>
             </View>
@@ -227,11 +329,35 @@ export default function DetailScreen({ route, navigation }) {
               <Text style={styles.tagOutlineText}>{monumento.estilo}</Text>
             </View>
           )}
-          {monumento.heritage_label && (
-            <View style={[styles.tag, { backgroundColor: '#fef3c7' }]}>
-              <Text style={[styles.tagText, { color: '#92400e' }]}>{monumento.heritage_label}</Text>
-            </View>
-          )}
+          {monumento.heritage_label && (() => {
+            const hl = monumento.heritage_label.toLowerCase();
+            if (hl.includes('lista roja')) {
+              return (
+                <View style={[styles.tag, { backgroundColor: '#fee2e2' }]}>
+                  <Text style={[styles.tagText, { color: '#991b1b' }]}>Lista Roja de Hispania Nostra</Text>
+                </View>
+              );
+            }
+            if (hl.includes('lista verde') || hl.includes('lista verda')) {
+              return (
+                <View style={[styles.tag, { backgroundColor: '#dcfce7' }]}>
+                  <Text style={[styles.tagText, { color: '#166534' }]}>Lista Verde de Hispania Nostra</Text>
+                </View>
+              );
+            }
+            if (hl.includes('lista negra')) {
+              return (
+                <View style={[styles.tag, { backgroundColor: '#1f2937' }]}>
+                  <Text style={[styles.tagText, { color: '#f9fafb' }]}>Lista Negra de Hispania Nostra</Text>
+                </View>
+              );
+            }
+            return (
+              <View style={[styles.tag, { backgroundColor: '#fef3c7' }]}>
+                <Text style={[styles.tagText, { color: '#92400e' }]}>{monumento.heritage_label}</Text>
+              </View>
+            );
+          })()}
         </View>
       </View>
 
@@ -243,6 +369,18 @@ export default function DetailScreen({ route, navigation }) {
             <Text style={styles.paragraph}>{monumento.descripcion_completa}</Text>
           ) : wikiExtract ? (
             <>
+              {wikiExtractLang && wikiExtractLang !== i18n.language && (
+                <View style={styles.langNotice}>
+                  <Text style={styles.langNoticeText}>
+                    {t('detail.extractOtherLang', `Texto disponible en ${wikiExtractLang === 'es' ? 'español' : wikiExtractLang}`)}
+                  </Text>
+                  <TouchableOpacity onPress={() => openURL(`https://translate.google.com/?sl=${wikiExtractLang}&tl=${i18n.language}&text=${encodeURIComponent(wikiExtract)}&op=translate`)}>
+                    <Text style={styles.langNoticeLink}>
+                      {t('detail.translateWithGoogle', 'Traducir con Google')} ↗
+                    </Text>
+                  </TouchableOpacity>
+                </View>
+              )}
               <Text style={styles.paragraph}>{wikiExtract}</Text>
               <TouchableOpacity onPress={() => openURL(monumento.wikipedia_url)}>
                 <Text style={styles.wikiAttribution}>{t('detail.sourceWikipedia')}</Text>
@@ -266,6 +404,130 @@ export default function DetailScreen({ route, navigation }) {
           <Text style={styles.paragraph}>{monumento.sintesis_historica}</Text>
         </View>
       )}
+
+      {/* Valoraciones */}
+      <View style={styles.section}>
+        <Text style={styles.sectionTitle}>{t('detail.ratings', 'Valoraciones')}</Text>
+        {ratings?.media_general ? (
+          <View style={styles.ratingSummary}>
+            <Text style={styles.ratingNumber}>{ratings.media_general.toFixed(1)}</Text>
+            <View style={styles.starsDisplay}>
+              {[1, 2, 3, 4, 5].map(n => (
+                <Ionicons
+                  key={n}
+                  name={n <= Math.round(ratings.media_general) ? 'star' : 'star-outline'}
+                  size={16}
+                  color="#fbbf24"
+                />
+              ))}
+            </View>
+            <Text style={styles.ratingCount}>
+              ({ratings.total || 0} {t('detail.ratingsCount', 'valoraciones')})
+            </Text>
+          </View>
+        ) : (
+          <Text style={styles.noRatings}>{t('detail.noRatings', 'Encara sense valoracions')}</Text>
+        )}
+        {user ? (
+          <View style={styles.userRatingRow}>
+            <Text style={styles.userRatingLabel}>{t('detail.yourRating', 'La teva valoració')}:</Text>
+            <View style={styles.starsDisplay}>
+              {[1, 2, 3, 4, 5].map(n => (
+                <TouchableOpacity key={n} onPress={() => handleRate(n)} disabled={ratingSaving}>
+                  <Ionicons
+                    name={n <= userRating ? 'star' : 'star-outline'}
+                    size={22}
+                    color="#fbbf24"
+                  />
+                </TouchableOpacity>
+              ))}
+            </View>
+          </View>
+        ) : (
+          <Text style={styles.loginHint}>{t('detail.ratingsLoginHint', 'Inicia sessió per valorar')}</Text>
+        )}
+      </View>
+
+      {/* Notas */}
+      <View style={styles.section}>
+        <View style={styles.notasHeader}>
+          <Text style={styles.sectionTitle}>
+            {t('detail.userNotes', 'Notes')} ({notas.length})
+          </Text>
+          {user && (
+            <TouchableOpacity onPress={() => setShowAddNota(s => !s)} style={styles.addNotaBtn}>
+              <Ionicons name={showAddNota ? 'close' : 'add'} size={14} color={COLORS.primary} />
+              <Text style={styles.addNotaText}>
+                {showAddNota ? t('common.cancel', 'Cancel·lar') : t('detail.addNote', 'Afegir')}
+              </Text>
+            </TouchableOpacity>
+          )}
+        </View>
+
+        {showAddNota && user && (
+          <View style={styles.notaForm}>
+            <View style={styles.notaTipoRow}>
+              {['nota', 'horario', 'precio'].map(tip => (
+                <TouchableOpacity
+                  key={tip}
+                  style={[styles.notaTipoChip, notaTipo === tip && styles.notaTipoChipActive]}
+                  onPress={() => setNotaTipo(tip)}
+                >
+                  <Text style={[styles.notaTipoText, notaTipo === tip && styles.notaTipoTextActive]}>
+                    {t(`detail.notaType${tip.charAt(0).toUpperCase() + tip.slice(1)}`, tip)}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+            <TextInput
+              style={[styles.input, { height: 80, textAlignVertical: 'top' }]}
+              value={notaText}
+              onChangeText={setNotaText}
+              placeholder={t('detail.notaPlaceholder', 'La teva nota…')}
+              multiline
+            />
+            <TouchableOpacity
+              style={[styles.saveNotaBtn, (notaSubmitting || !notaText.trim()) && { opacity: 0.5 }]}
+              onPress={handleAddNota}
+              disabled={notaSubmitting || !notaText.trim()}
+            >
+              {notaSubmitting ? (
+                <ActivityIndicator color="#fff" size="small" />
+              ) : (
+                <Text style={styles.saveNotaText}>{t('common.save', 'Desar')}</Text>
+              )}
+            </TouchableOpacity>
+          </View>
+        )}
+
+        {notas.length === 0 ? (
+          <Text style={styles.noNotes}>{t('detail.noNotes', 'Encara no hi ha notes')}</Text>
+        ) : (
+          notas.map(n => (
+            <View key={n.id} style={styles.notaItem}>
+              <View style={styles.notaItemHeader}>
+                <View style={[styles.notaBadge, n.tipo === 'horario' && styles.notaBadgeHorario, n.tipo === 'precio' && styles.notaBadgePrecio]}>
+                  <Text style={styles.notaBadgeText}>
+                    {n.tipo === 'horario' ? '🕐' : n.tipo === 'precio' ? '💰' : '📝'} {n.tipo}
+                  </Text>
+                </View>
+                <Text style={styles.notaAuthor}>
+                  {n.usuario_nombre || (n.usuario_email ? n.usuario_email.split('@')[0] : t('detail.userAnonymous', 'Anònim'))}
+                </Text>
+                {user && (user.id === n.usuario_id || user.rol === 'admin') && (
+                  <TouchableOpacity onPress={() => handleDeleteNota(n.id)}>
+                    <Ionicons name="close" size={16} color={COLORS.textSecondary} />
+                  </TouchableOpacity>
+                )}
+              </View>
+              <Text style={styles.notaText}>{n.texto}</Text>
+              <Text style={styles.notaDate}>
+                {new Date(n.created_at).toLocaleDateString()}
+              </Text>
+            </View>
+          ))
+        )}
+      </View>
 
       {/* Dating */}
       {(monumento.datacion || monumento.inception || monumento.periodo_historico || monumento.siglo) && (
@@ -616,6 +878,80 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.primary,
     fontStyle: 'italic',
+  },
+  ratingSummary: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 8 },
+  ratingNumber: { fontSize: 22, fontWeight: '800', color: COLORS.textPrimary },
+  starsDisplay: { flexDirection: 'row', gap: 2 },
+  ratingCount: { fontSize: 12, color: COLORS.textSecondary, marginLeft: 4 },
+  noRatings: { fontSize: 13, color: COLORS.textSecondary, fontStyle: 'italic' },
+  userRatingRow: {
+    flexDirection: 'row', alignItems: 'center', gap: 8,
+    marginTop: 8, paddingTop: 8,
+    borderTopWidth: 1, borderTopColor: COLORS.borderLight,
+  },
+  userRatingLabel: { fontSize: 13, color: COLORS.textPrimary, fontWeight: '600' },
+  loginHint: { fontSize: 12, color: COLORS.textSecondary, fontStyle: 'italic', marginTop: 6 },
+  notasHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  addNotaBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  addNotaText: { color: COLORS.primary, fontSize: 12, fontWeight: '600' },
+  notaForm: {
+    marginVertical: 8, padding: 10,
+    backgroundColor: COLORS.background, borderRadius: 8,
+    borderWidth: 1, borderColor: COLORS.border,
+  },
+  notaTipoRow: { flexDirection: 'row', gap: 6, marginBottom: 8 },
+  notaTipoChip: {
+    paddingHorizontal: 8, paddingVertical: 4,
+    borderRadius: 10, borderWidth: 1, borderColor: COLORS.border,
+    backgroundColor: COLORS.surface,
+  },
+  notaTipoChipActive: { backgroundColor: COLORS.primary, borderColor: COLORS.primary },
+  notaTipoText: { fontSize: 11, color: COLORS.textSecondary, fontWeight: '600' },
+  notaTipoTextActive: { color: '#fff' },
+  input: {
+    backgroundColor: COLORS.surface,
+    borderWidth: 1, borderColor: COLORS.border,
+    borderRadius: 8, padding: 10, fontSize: 13, color: COLORS.textPrimary,
+  },
+  saveNotaBtn: {
+    marginTop: 8, paddingVertical: 9,
+    backgroundColor: COLORS.primary, borderRadius: 8, alignItems: 'center',
+  },
+  saveNotaText: { color: '#fff', fontWeight: '700', fontSize: 13 },
+  noNotes: { fontSize: 13, color: COLORS.textSecondary, fontStyle: 'italic', marginTop: 4 },
+  notaItem: {
+    marginTop: 8, padding: 10,
+    backgroundColor: COLORS.background, borderRadius: 8,
+    borderWidth: 1, borderColor: COLORS.borderLight,
+  },
+  notaItemHeader: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 4 },
+  notaBadge: {
+    paddingHorizontal: 6, paddingVertical: 2,
+    backgroundColor: '#e0e7ff', borderRadius: 4,
+  },
+  notaBadgeHorario: { backgroundColor: '#fef3c7' },
+  notaBadgePrecio: { backgroundColor: '#dcfce7' },
+  notaBadgeText: { fontSize: 10, fontWeight: '700', color: COLORS.textPrimary, textTransform: 'uppercase' },
+  notaAuthor: { flex: 1, fontSize: 12, color: COLORS.textSecondary, fontWeight: '600' },
+  notaText: { fontSize: 13, color: COLORS.textPrimary, lineHeight: 17 },
+  notaDate: { fontSize: 11, color: COLORS.textSecondary, marginTop: 4 },
+  langNotice: {
+    backgroundColor: '#fff7ed',
+    borderLeftWidth: 3,
+    borderLeftColor: '#fb923c',
+    padding: 10,
+    borderRadius: 6,
+    marginBottom: 10,
+  },
+  langNoticeText: {
+    fontSize: 12,
+    color: '#7c2d12',
+    marginBottom: 4,
+  },
+  langNoticeLink: {
+    fontSize: 13,
+    color: '#c2410c',
+    fontWeight: '600',
   },
   wikiLoadingText: {
     fontSize: 14,

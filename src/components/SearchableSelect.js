@@ -1,6 +1,6 @@
 import { useState, useMemo } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, FlatList, Modal,
+  View, Text, TextInput, TouchableOpacity, FlatList, Modal, Image,
   StyleSheet, SafeAreaView, KeyboardAvoidingView, Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -44,6 +44,7 @@ export default function SearchableSelect({ value, onChange, options = [], placeh
       style={[styles.optionItem, item.value === value && styles.optionSelected]}
       onPress={() => handleSelect(item.value)}
     >
+      {item.flag && <Image source={item.flag} style={styles.flag} />}
       <Text style={[styles.optionText, item.value === value && styles.optionTextSelected]}>
         {item.label || item.value}
       </Text>
@@ -60,6 +61,7 @@ export default function SearchableSelect({ value, onChange, options = [], placeh
         style={[styles.trigger, value ? styles.triggerActive : null]}
         onPress={() => setVisible(true)}
       >
+        {selectedOption?.flag && <Image source={selectedOption.flag} style={styles.flag} />}
         <Text style={[styles.triggerText, !value && styles.triggerPlaceholder]} numberOfLines={1}>
           {selectedLabel || placeholder}
         </Text>
@@ -225,6 +227,13 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: COLORS.textSecondary,
     marginLeft: 8,
+  },
+  flag: {
+    width: 22,
+    height: 16,
+    borderRadius: 2,
+    marginRight: 8,
+    resizeMode: 'cover',
   },
   defaultOption: {
     backgroundColor: COLORS.borderLight,

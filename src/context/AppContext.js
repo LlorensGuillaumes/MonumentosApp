@@ -14,15 +14,22 @@ const initialState = {
     categoria: '',
     tipo: '',
     estilo: '',
+    evento: '',
     q: '',
     solo_coords: true,
     solo_wikidata: false,
     solo_imagen: false,
+    // Hispania Nostra: array d'identificadors de llista actius. Buit = no filtre HN.
+    // Valors possibles: 'roja', 'verde', 'negra' (multi-select).
+    hn_listas: [],
   },
   mapBounds: null,
+  compareList: [], // max 3 monuments
   loading: false,
   error: null,
 };
+
+const MAX_COMPARE = 3;
 
 function reducer(state, action) {
   switch (action.type) {
@@ -41,6 +48,14 @@ function reducer(state, action) {
       return { ...state, filters: initialState.filters };
     case 'SET_MAP_BOUNDS':
       return { ...state, mapBounds: action.payload };
+    case 'ADD_COMPARE':
+      if (state.compareList.find(m => m.id === action.payload.id) || state.compareList.length >= MAX_COMPARE)
+        return state;
+      return { ...state, compareList: [...state.compareList, action.payload] };
+    case 'REMOVE_COMPARE':
+      return { ...state, compareList: state.compareList.filter(m => m.id !== action.payload) };
+    case 'CLEAR_COMPARE':
+      return { ...state, compareList: [] };
     case 'SET_LOADING':
       return { ...state, loading: action.payload };
     case 'SET_ERROR':
@@ -80,6 +95,10 @@ export function AppProvider({ children }) {
     dispatch({ type: 'SET_MAP_BOUNDS', payload: bounds });
   }, []);
 
+  const addToCompare = useCallback((m) => dispatch({ type: 'ADD_COMPARE', payload: m }), []);
+  const removeFromCompare = useCallback((id) => dispatch({ type: 'REMOVE_COMPARE', payload: id }), []);
+  const clearCompare = useCallback(() => dispatch({ type: 'CLEAR_COMPARE' }), []);
+
   const reloadFiltros = useCallback(async (pais, region, provincia) => {
     try {
       const params = {};
@@ -102,6 +121,9 @@ export function AppProvider({ children }) {
         resetFilters,
         setMapBounds,
         reloadFiltros,
+        addToCompare,
+        removeFromCompare,
+        clearCompare,
       }}
     >
       {children}

@@ -14,6 +14,16 @@ import FavoritosScreen from '../screens/FavoritosScreen';
 import ContactScreen from '../screens/ContactScreen';
 import ProposeScreen from '../screens/ProposeScreen';
 import MyProposalsScreen from '../screens/MyProposalsScreen';
+import AutoresScreen from '../screens/AutoresScreen';
+import CompareScreen from '../screens/CompareScreen';
+import CuratedRoutesScreen from '../screens/CuratedRoutesScreen';
+import CuratedRouteDetailScreen from '../screens/CuratedRouteDetailScreen';
+import DiaryScreen from '../screens/DiaryScreen';
+import UserStatsScreen from '../screens/UserStatsScreen';
+import ProfileScreen from '../screens/ProfileScreen';
+import PreguntameScreen from '../screens/PreguntameScreen';
+import NotFoundScreen from '../screens/NotFoundScreen';
+import PricingScreen from '../screens/PricingScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -131,6 +141,59 @@ export default function AppNavigator() {
           title: route.params?.title || t('detail.defaultTitle'),
           headerTitleStyle: { fontWeight: '600', fontSize: 16 },
         })}
+      />
+      <Stack.Screen
+        name="Autores"
+        component={AutoresScreen}
+        options={{ title: t('autores.title', 'Autors') }}
+      />
+      <Stack.Screen
+        name="Compare"
+        component={CompareScreen}
+        options={{ title: t('compare.title', 'Comparar') }}
+      />
+      <Stack.Screen
+        name="CuratedRoutes"
+        component={CuratedRoutesScreen}
+        options={{ title: t('curated.title', 'Rutes culturals') }}
+      />
+      <Stack.Screen
+        name="CuratedRouteDetail"
+        component={CuratedRouteDetailScreen}
+        options={({ route }) => ({
+          title: route.params?.title || t('curated.routeTitle', 'Ruta'),
+          headerTitleStyle: { fontWeight: '600', fontSize: 16 },
+        })}
+      />
+      <Stack.Screen
+        name="Diary"
+        component={DiaryScreen}
+        options={{ title: t('diary.title', 'Diari de viatges') }}
+      />
+      <Stack.Screen
+        name="UserStats"
+        component={UserStatsScreen}
+        options={{ title: t('userStats.title', 'Les meves estadístiques') }}
+      />
+      <Stack.Screen
+        name="Profile"
+        component={ProfileScreen}
+        options={{ title: t('profile.title', 'El meu perfil') }}
+      />
+      <Stack.Screen
+        name="Preguntame"
+        component={PreguntameScreen}
+        options={{ title: t('preguntame.title', 'Pregunta\'m') }}
+      />
+      <Stack.Screen
+        name="Pricing"
+        component={PricingScreen}
+        options={{ title: t('pricing.title', 'Plans i preus') }}
+      />
+      <Stack.Screen
+        name="NotFound"
+        component={NotFoundScreen}
+        options={{ title: '404' }}
       />
     </Stack.Navigator>
   );

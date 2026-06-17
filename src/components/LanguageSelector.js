@@ -1,17 +1,18 @@
-import { View, Text, TouchableOpacity, Modal, SafeAreaView, StyleSheet } from 'react-native';
+import { View, Text, TouchableOpacity, Modal, Image, SafeAreaView, StyleSheet } from 'react-native';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Ionicons } from '@expo/vector-icons';
 import { COLORS } from '../utils/colors';
 
 const LANGUAGES = [
-  { code: 'es', label: 'Español' },
-  { code: 'en', label: 'English' },
-  { code: 'fr', label: 'Français' },
-  { code: 'pt', label: 'Português' },
-  { code: 'ca', label: 'Català' },
-  { code: 'eu', label: 'Euskara' },
-  { code: 'gl', label: 'Galego' },
+  { code: 'es', label: 'Español', flag: require('../../assets/flags/es.jpg') },
+  { code: 'en', label: 'English', flag: require('../../assets/flags/en.jpg') },
+  { code: 'fr', label: 'Français', flag: require('../../assets/flags/fr.jpg') },
+  { code: 'pt', label: 'Português', flag: require('../../assets/flags/pt.jpg') },
+  { code: 'ca', label: 'Català', flag: require('../../assets/flags/ca.jpg') },
+  { code: 'eu', label: 'Euskara', flag: require('../../assets/flags/eu.jpg') },
+  { code: 'gl', label: 'Galego', flag: require('../../assets/flags/gl.jpg') },
+  { code: 'it', label: 'Italiano', flag: require('../../assets/flags/it.jpg') },
 ];
 
 export default function LanguageSelector() {
@@ -29,8 +30,7 @@ export default function LanguageSelector() {
   return (
     <View style={styles.wrapper}>
       <TouchableOpacity style={styles.trigger} onPress={() => setVisible(true)}>
-        <Ionicons name="language" size={16} color="#fff" />
-        <Text style={styles.triggerLabel}>{current.label}</Text>
+        <Image source={current.flag} style={styles.triggerFlag} />
         <Ionicons name="chevron-down" size={14} color="rgba(255,255,255,0.7)" />
       </TouchableOpacity>
 
@@ -43,13 +43,13 @@ export default function LanguageSelector() {
           <SafeAreaView>
             <View style={styles.dropdown}>
               <Text style={styles.dropdownTitle}>Idioma / Language</Text>
-              {LANGUAGES.map(({ code, label }) => (
+              {LANGUAGES.map(({ code, label, flag }) => (
                 <TouchableOpacity
                   key={code}
                   style={[styles.option, currentLang === code && styles.optionActive]}
                   onPress={() => handleSelect(code)}
                 >
-                  <Text style={styles.optionCode}>{code.toUpperCase()}</Text>
+                  <Image source={flag} style={styles.optionFlag} />
                   <Text style={[styles.optionLabel, currentLang === code && styles.optionLabelActive]}>
                     {label}
                   </Text>
@@ -81,10 +81,17 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: 'rgba(255,255,255,0.2)',
   },
-  triggerLabel: {
-    color: '#fff',
-    fontSize: 13,
-    fontWeight: '500',
+  triggerFlag: {
+    width: 24,
+    height: 18,
+    borderRadius: 2,
+    resizeMode: 'cover',
+  },
+  optionFlag: {
+    width: 26,
+    height: 19,
+    borderRadius: 2,
+    resizeMode: 'cover',
   },
   overlay: {
     flex: 1,
@@ -123,12 +130,6 @@ const styles = StyleSheet.create({
   },
   optionActive: {
     backgroundColor: COLORS.primary + '10',
-  },
-  optionCode: {
-    fontSize: 12,
-    fontWeight: '700',
-    color: COLORS.textSecondary,
-    width: 24,
   },
   optionLabel: {
     flex: 1,

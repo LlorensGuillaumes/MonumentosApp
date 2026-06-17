@@ -88,6 +88,9 @@ export default function MapScreen({ navigation }) {
         subtitle: [f.properties.municipio, f.properties.provincia].filter(Boolean).join(', '),
         categoria: f.properties.categoria,
         tipo: f.properties.tipo,
+        // Camps per al render HN al LeafletMap
+        hn_lista: f.properties.hn_lista,
+        heritage_label: f.properties.heritage_label,
       }));
       setMarkers(features);
     } catch (err) {

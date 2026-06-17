@@ -5,6 +5,30 @@ import { useApp } from '../context/AppContext';
 import SearchableSelect from './SearchableSelect';
 import { COLORS } from '../utils/colors';
 
+// Mapeig pais (valor BD) -> imatge bandera. Quan s'amplii la BD amb nous països,
+// afegir aqui el nou par + copiar imatge a assets/flags/.
+const COUNTRY_FLAGS = {
+  'España': require('../../assets/flags/es.jpg'),
+  'Italia': require('../../assets/flags/it.jpg'),
+  'Francia': require('../../assets/flags/fr.jpg'),
+  'Portugal': require('../../assets/flags/pt.jpg'),
+  'Alemania': require('../../assets/flags/de.jpg'),
+  'Reino Unido': require('../../assets/flags/en.jpg'),
+  'Austria': require('../../assets/flags/at.jpg'),
+  'Suiza': require('../../assets/flags/ch.jpg'),
+  'Rumanía': require('../../assets/flags/ro.jpg'),
+  'Líbano': require('../../assets/flags/lb.jpg'),
+  'Túnez': require('../../assets/flags/tn.jpg'),
+  'Estados Unidos': require('../../assets/flags/us.jpg'),
+  'México': require('../../assets/flags/mx.jpg'),
+};
+
+const HN_PILLS = [
+  { id: 'roja', color: '#dc2626', activeBg: '#dc2626' },
+  { id: 'verde', color: '#16a34a', activeBg: '#16a34a' },
+  { id: 'negra', color: '#1f2937', activeBg: '#1f2937' },
+];
+
 export default function FilterModal({ visible, onClose, onSearch }) {
   const { t } = useTranslation();
   const { filters, filtros, setFilter, resetFilters, reloadFiltros } = useApp();
@@ -99,9 +123,15 @@ export default function FilterModal({ visible, onClose, onSearch }) {
   // Contar filtros activos
   const activeCount = [
     filters.pais, filters.region, filters.provincia, filters.municipio,
-    filters.categoria, filters.tipo, filters.estilo,
+    filters.categoria, filters.tipo, filters.estilo, filters.evento,
     filters.solo_wikidata, filters.solo_imagen,
-  ].filter(Boolean).length;
+  ].filter(Boolean).length + ((filters.hn_listas || []).length > 0 ? 1 : 0);
+
+  const toggleHnLista = (id) => {
+    const curr = filters.hn_listas || [];
+    const next = curr.includes(id) ? curr.filter(x => x !== id) : [...curr, id];
+    setFilter('hn_listas', next);
+  };
 
   return (
     <Modal visible={visible} animationType="slide" presentationStyle="pageSheet">
@@ -124,7 +154,10 @@ export default function FilterModal({ visible, onClose, onSearch }) {
               label={t('filters.country')}
               value={filters.pais}
               onChange={handlePaisChange}
-              options={translateOptions(filtros.paises, 'filters.countries')}
+              options={translateOptions(filtros.paises, 'filters.countries').map(o => ({
+                ...o,
+                flag: COUNTRY_FLAGS[o.value] || null,
+              }))}
               placeholder={t('filters.allCountries')}
             />
           )}
@@ -180,6 +213,16 @@ export default function FilterModal({ visible, onClose, onSearch }) {
             placeholder={t('filters.allStyles')}
           />
 
+          {filtros.eventos?.length > 0 && (
+            <SearchableSelect
+              label={t('filters.event')}
+              value={filters.evento}
+              onChange={(v) => setFilter('evento', v)}
+              options={translateOptions(filtros.eventos, 'filters.events')}
+              placeholder={t('filters.allEvents')}
+            />
+          )}
+
           {/* Opciones */}
           <Text style={styles.sectionTitle}>{t('filters.options')}</Text>
 
@@ -201,6 +244,38 @@ export default function FilterModal({ visible, onClose, onSearch }) {
               trackColor={{ false: COLORS.border, true: COLORS.primary + '60' }}
               thumbColor={filters.solo_imagen ? COLORS.primary : '#f4f3f4'}
             />
+          </View>
+
+          {/* Pills Hispania Nostra (multi-select) */}
+          <View style={styles.hnBlock}>
+            <Text style={styles.hnLabel}>🛡️ {t('filters.hnListsLabel', 'Lista Roja de Hispania Nostra')}</Text>
+            <View style={styles.hnPillsRow}>
+              {HN_PILLS.map(p => {
+                const active = (filters.hn_listas || []).includes(p.id);
+                const labelKey = `filters.hn${p.id.charAt(0).toUpperCase()}${p.id.slice(1)}`;
+                const fallback = p.id === 'roja' ? 'Roja' : p.id === 'verde' ? 'Verde' : 'Negra';
+                return (
+                  <TouchableOpacity
+                    key={p.id}
+                    style={[
+                      styles.hnPill,
+                      { borderColor: p.color },
+                      active && { backgroundColor: p.activeBg, borderColor: p.activeBg },
+                    ]}
+                    onPress={() => toggleHnLista(p.id)}
+                  >
+                    <View style={[
+                      styles.hnPillDot,
+                      { backgroundColor: active ? 'rgba(255,255,255,0.85)' : p.color },
+                    ]} />
+                    <Text style={[
+                      styles.hnPillText,
+                      { color: active ? '#fff' : p.color },
+                    ]}>{t(labelKey, fallback)}</Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
           </View>
         </ScrollView>
 
@@ -268,6 +343,42 @@ const styles = StyleSheet.create({
   switchLabel: {
     fontSize: 14,
     color: COLORS.textPrimary,
+  },
+  hnBlock: {
+    marginTop: 12,
+    paddingHorizontal: 4,
+  },
+  hnLabel: {
+    fontSize: 12,
+    fontWeight: '600',
+    color: COLORS.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.4,
+    marginBottom: 8,
+  },
+  hnPillsRow: {
+    flexDirection: 'row',
+    gap: 8,
+    flexWrap: 'wrap',
+  },
+  hnPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    paddingHorizontal: 12,
+    paddingVertical: 7,
+    borderRadius: 999,
+    borderWidth: 1.5,
+    backgroundColor: COLORS.surface,
+  },
+  hnPillDot: {
+    width: 10,
+    height: 10,
+    borderRadius: 5,
+  },
+  hnPillText: {
+    fontSize: 13,
+    fontWeight: '600',
   },
   footer: {
     flexDirection: 'row',

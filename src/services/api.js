@@ -31,30 +31,104 @@ api.interceptors.response.use(
 
 // ============== DATOS ==============
 
+// Normaliza filtros antes de enviar al backend:
+// - Vacíos / nulos / arrays vacíos: omitidos
+// - Arrays con elementos: serializados como CSV (más simple que ?key[]=)
+function normalizeFilters(params) {
+  const out = {};
+  for (const [k, v] of Object.entries(params || {})) {
+    if (v === null || v === undefined || v === '') continue;
+    if (Array.isArray(v)) {
+      if (v.length === 0) continue;
+      out[k] = v.join(',');
+    } else {
+      out[k] = v;
+    }
+  }
+  return out;
+}
+
 export const getStats = () => api.get('/stats').then(r => r.data);
 
 export const getMonumentos = (params = {}) =>
-  api.get('/monumentos', { params }).then(r => r.data);
+  api.get('/monumentos', { params: normalizeFilters(params) }).then(r => r.data);
 
 export const getMonumento = (id) =>
   api.get(`/monumentos/${id}`).then(r => r.data);
 
 export const getGeoJSON = (params = {}) =>
-  api.get('/geojson', { params }).then(r => r.data);
+  api.get('/geojson', { params: normalizeFilters(params) }).then(r => r.data);
 
 export const getFiltros = (params = {}) =>
-  api.get('/filtros', { params }).then(r => r.data);
+  api.get('/filtros', { params: normalizeFilters(params) }).then(r => r.data);
 
 export const getCCAAResumen = (params = {}) =>
-  api.get('/ccaa-resumen', { params }).then(r => r.data);
+  api.get('/ccaa-resumen', { params: normalizeFilters(params) }).then(r => r.data);
 
 export const getMunicipios = (params = {}) =>
   api.get('/municipios', { params }).then(r => r.data);
 
 // ============== WIKIPEDIA ==============
 
-export const getWikipediaExtract = (id) =>
-  api.get(`/monumentos/${id}/wikipedia`).then(r => r.data).catch(() => null);
+export const getWikipediaExtract = (id, lang) =>
+  api.get(`/monumentos/${id}/wikipedia`, { params: lang ? { lang } : {} }).then(r => r.data).catch(() => null);
+
+// ============== PERSONAS / AUTORES ==============
+
+export const getPersonas = (params = {}) =>
+  api.get('/personas', { params: normalizeFilters(params) }).then(r => r.data);
+
+export const getPersonaBienes = (qid, limit = 100) =>
+  api.get(`/personas/${qid}/bienes`, { params: { limit } }).then(r => r.data);
+
+// ============== RUTAS CULTURALES ==============
+
+export const getRutasCulturales = (lang) =>
+  api.get('/rutas-culturales', { params: lang ? { lang } : {} }).then(r => r.data);
+
+export const getRutaCultural = (slug) =>
+  api.get(`/rutas-culturales/${slug}`).then(r => r.data);
+
+// ============== TRAVEL DIARY ==============
+
+export const getDiaryEntries = (params = {}) =>
+  api.get('/diary', { params }).then(r => r.data);
+
+export const addDiaryEntry = (data) =>
+  api.post('/diary', data).then(r => r.data);
+
+export const deleteDiaryEntry = (id) =>
+  api.delete(`/diary/${id}`).then(r => r.data);
+
+// ============== USER STATS ==============
+
+export const getUserStats = () =>
+  api.get('/auth/stats').then(r => r.data);
+
+// ============== CHATBOT (admin) ==============
+
+export const adminChat = ({ question, modo, history }) =>
+  api.post('/admin/chat', { question, modo, history }).then(r => r.data);
+
+export const getMonumentosByIds = (ids) =>
+  api.get('/monumentos/by-ids', { params: { ids: ids.join(',') } }).then(r => r.data);
+
+// ============== NOTAS + VALORACIONES (Detail) ==============
+
+export const getNotasMonumento = (bienId) =>
+  api.get(`/monumentos/${bienId}/notas`).then(r => r.data);
+
+export const addNotaMonumento = (bienId, tipo, texto) =>
+  api.post(`/monumentos/${bienId}/notas`, { tipo, texto }).then(r => r.data);
+
+export const deleteNotaMonumento = (bienId, notaId) =>
+  api.delete(`/monumentos/${bienId}/notas/${notaId}`).then(r => r.data);
+
+export const getValoraciones = (bienId) =>
+  api.get(`/monumentos/${bienId}/valoraciones`).then(r => r.data);
+
+export const addValoracion = (bienId, data) =>
+  api.post(`/monumentos/${bienId}/valoraciones`, data).then(r => r.data);
 
 // ============== AUTH ==============
 
@@ -72,6 +146,9 @@ export const authMe = () =>
 
 export const authUpdate = (data) =>
   api.put('/auth/me', data).then(r => r.data);
+
+export const changePassword = (data) =>
+  api.put('/auth/me/password', data).then(r => r.data);
 
 // ============== FAVORITOS ==============
 
